@@ -1,5 +1,5 @@
 ﻿using AnaliseSentimentoDeDadosIA.Entity;
-using AnaliseSentimentoDeDadosIA.Services;
+using Azure.AI.TextAnalytics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnaliseSentimentoDeDadosIA.Controllers
@@ -9,17 +9,31 @@ namespace AnaliseSentimentoDeDadosIA.Controllers
     public class SentimentoController : ControllerBase
     {
 
-        private readonly ISentimentoService _sentimentoService;
+        private readonly TextAnalyticsClient _textAnalyticsClient;
 
-        public SentimentoController(ISentimentoService sentimentoService)
+        public SentimentoController(TextAnalyticsClient textAnalyticsClient)
         {
-            _sentimentoService = sentimentoService;
+            _textAnalyticsClient = textAnalyticsClient;
         }
 
-        [HttpGet]
-        public ActionResult<SentimentoEntity> GetSentimento([FromBody] string texto) 
+        [HttpPost]
+        public async  Task<ActionResult<SentimentoEntity>> GetSentimento([FromBody] string texto) 
         {
-            return Ok(new { SentimentoEntity = "Positivo" });
+            try
+            {
+                if (string.IsNullOrEmpty(texto)) return BadRequest("O texto não pode ser vazio");
+
+                var resposta = await _textAnalyticsClient.AnalyzeSentimentAsync(texto);
+
+
+                var sentimento = resposta.Value.Sentiment;
+
+                return Ok(new { sentimento = resposta.Value.Sentiment.ToString()});
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }
