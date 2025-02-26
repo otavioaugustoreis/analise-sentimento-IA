@@ -1,0 +1,6 @@
+@AnaliseSentimentoDeDadosIA_HostAddress = http://localhost:5234
+
+GET {{AnaliseSentimentoDeDadosIA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
