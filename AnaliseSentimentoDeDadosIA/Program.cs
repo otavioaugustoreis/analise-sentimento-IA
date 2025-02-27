@@ -17,18 +17,7 @@ var endpoint = new Uri(builder.Configuration["AzureTextAnalytics:Endpoint"]);
 var credential = new AzureKeyCredential(builder.Configuration["AzureTextAnalytics:Key"]);
 builder.Services.AddSingleton<TextAnalyticsClient>(new TextAnalyticsClient(endpoint, credential));
 
-builder.Services.Configure<TwitterEntity>(builder.Configuration.GetSection("Twitter"));
 
-builder.Services.AddSingleton<TwitterClient>(provider =>
-{
-    var twitterSettings = provider.GetRequiredService<IOptions<TwitterEntity>>().Value;
-    return new TwitterClient(
-        twitterSettings.ApiKey,
-        twitterSettings.ApiSecretKey,
-        twitterSettings.AccessToken,
-        twitterSettings.AccessTokenSecret
-    );
-});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

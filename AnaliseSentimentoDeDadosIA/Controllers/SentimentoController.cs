@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tweetinvi;
 using Tweetinvi.Core.Extensions;
 using Tweetinvi.Core.Models;
+using Tweetinvi.Core.Parameters;
+using Tweetinvi.Parameters;
 
 namespace AnaliseSentimentoDeDadosIA.Controllers
 {
@@ -13,7 +15,6 @@ namespace AnaliseSentimentoDeDadosIA.Controllers
     {
 
         private readonly TextAnalyticsClient _textAnalyticsClient;
-        private readonly TwitterClient _twitterClient;
 
         public SentimentoController(TextAnalyticsClient textAnalyticsClient, TwitterClient twitterClient)
         {
@@ -21,38 +22,9 @@ namespace AnaliseSentimentoDeDadosIA.Controllers
             _twitterClient = twitterClient;
         }
 
-        [HttpPost("twitter/{username}")]
-        public async Task<ActionResult<SentimentoEntity>> GetSentimentoViaTwitter([FromBody] string username)
-        {
-            try
-            {
-                var userTimeline = await _twitterClient.Timelines.GetUserTimelineAsync(username);
-                
-                var list = new List<dynamic>();
-
-
-                foreach (var tweet in userTimeline)
-                {
-                    var sentimentResponse = await _textAnalyticsClient.AnalyzeSentimentAsync(tweet.Text);
-                    var sentiment = sentimentResponse.Value.Sentiment;
-
-                    list.Add(new
-                    {
-                        Text = tweet.Text,
-                        Sentiment = sentiment.ToString()
-                    });
-                }
-
-                return Ok(list);
-            }
-            catch(Exception ex) 
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        public async  Task<ActionResult<SentimentoEntity>> GetSentimentoViaTexto([FromBody] string texto) 
+      
+        [HttpPost("{texto}")]
+        public async  Task<ActionResult> GetSentimentoViaTexto(string texto) 
         {
             try
             {
